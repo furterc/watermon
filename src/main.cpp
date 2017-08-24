@@ -10,24 +10,21 @@
 #include "commands.h"
 #include "output.h"
 #include "temp.h"
-#include "seven_segment.h"
 #include "buzzer.h"
+#include "button.h"
+#include "display_controller.h"
 
 
-cTemp temp = cTemp();
+
 cBuzzer Buzzer = cBuzzer();
+cButton Button = cButton();
 
 void watchdogReset()
 {
 	__asm__ __volatile__ ( "wdr\n" );
 }
 
-void light(uint8_t argc, char **argv)
-{
-	temp.adc_getTemp();
-}
-extern const dbg_entry testEntry =
-{ light, "t" };
+
 
 void buzzer(uint8_t argc, char **argv)
 {
@@ -46,17 +43,40 @@ void segmentNumber(uint8_t argc, char **argv)
 	uint16_t number = atoi(argv[1]);
 	printp("show number: %d\n", number);
 
-	SevenSegment.setNumber(number);
+//	SevenSegment.setNumber(number);
 }
 extern const dbg_entry numberEntry =
 { segmentNumber, "n" };
+
+void btnCallback(bool state, uint8_t count)
+{
+	printf("button: %d - %d\n", state, count);
+	static uint8_t btnCount = 0;
+	if(!state)
+		btnCount = count;
+
+	if (state)
+	{
+		if(btnCount > 10)
+			printf("Long press\n");
+		else if(btnCount)
+		{
+			printf("Short press\n");
+			DisplayController.show_info();
+		}
+
+	}
+}
 
 int main(void)
 {
 
 	sei();
 	printp("main()\n");
-//	timerPwm.init();
+
+	Button.setCB(&btnCallback);
+
+	DisplayController.show_temp();
 
 	uint16_t segmentCount = 0;
 	bool tempState = false;
@@ -64,25 +84,28 @@ int main(void)
 	{
 		if (++segmentCount > 10)
 		{
+			DisplayController.run();
 //			uint8_t temperature = (uint8_t)temp.adc_getTemp();
-
-//			SevenSegment.setNumber(temperature);
-			segmentCount = 0;
-			if (!tempState)
-			{
-				SevenSegment.setState(SevenSegment.HI);
-				tempState = true;
-			}
-			else
-			{
-				SevenSegment.setState(SevenSegment.LO);
-				tempState = false;
-			}
+//
+////			SevenSegment.setNumber(temperature);
+//			segmentCount = 0;
+//			if (!tempState)
+//			{
+//				SevenSegment.setState(SevenSegment.HI);
+//				tempState = true;
+//			}
+//			else
+//			{
+//				SevenSegment.setState(SevenSegment.LO);
+//				tempState = false;
+//			}
 
 		}
 
 
 		Terminal.run();
+		Button.run();
+
 		_delay_ms(100);
 
 	}

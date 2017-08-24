@@ -8,6 +8,8 @@
 #ifndef SRC_SEVEN_SEGMENT_H_
 #define SRC_SEVEN_SEGMENT_H_
 
+#include <stdint.h>
+
 class cSevenSegment
 {
 	void sendByte(uint8_t byte);
