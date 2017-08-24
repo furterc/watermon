@@ -19,6 +19,7 @@ class cDisplayController
 		SET_LOW
 	}mDisplayState;
 
+	bool mBusy;
 
 
 
@@ -28,6 +29,8 @@ public:
 
 	void show_temp();
 	void show_info();
+	bool set_mode_busy();
+	void enter_set_mode();
 	void run();
 };
 

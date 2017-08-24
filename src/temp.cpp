@@ -79,7 +79,6 @@ uint16_t cTemp::getVal()
 	samples = (samples >> 4);
 
 	/* Return the calculated voltage */
-	printf("adc\t: %d\n",ADC);
 	return samples;
 }
 
@@ -93,9 +92,7 @@ double cTemp::adc_getResistance()
 	 */
 	double Vout = (VIN*getVal());
 	Vout = Vout/1024;
-	printf("v\t: %f\n", Vout);
 	double res = ((Vout*RES1)/(VIN-Vout));
-	printf("r\t: %f\n", res);
 	return res;
 }
 
@@ -106,7 +103,6 @@ uint16_t cTemp::adc_getTemp()
 	double lnRes = (log(adc_getResistance()));
 	double temp = 1/(A + (B*lnRes) + (C * lnRes * lnRes * lnRes));
 	double tempC = temp - 273;
-	printf("t\t: %f\n", tempC);
 	return (uint16_t)tempC;
 }
 

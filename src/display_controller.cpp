@@ -8,24 +8,24 @@
 #include "display_controller.h"
 
 #include <stdlib.h>
+#include <avr/delay.h>
 
 #include "seven_segment.h"
 #include "temp.h"
 #include "terminal.h"
 #include "commands.h"
 
-#define SHOW_THRESHHOLD 5
+#define SHOW_THRESHHOLD 3
 #define SHOW_COUNT		1
 
 cTemp temp = cTemp();
-
 
 cDisplayController DisplayController;
 
 cDisplayController::cDisplayController()
 {
 	mDisplayState = SHOW_TEMP;
-
+	mBusy = false;
 }
 
 void cDisplayController::show_temp()
@@ -35,7 +35,38 @@ void cDisplayController::show_temp()
 
 void cDisplayController::show_info()
 {
-	mDisplayState = SHOW_HIGH;
+   if (mDisplayState == SHOW_TEMP)
+       mDisplayState = SHOW_HIGH;
+}
+
+bool cDisplayController::set_mode_busy()
+{
+    if (!mBusy)
+        return false;
+
+
+
+    return true;
+}
+
+void cDisplayController::enter_set_mode()
+{
+    mBusy = true;
+    switch (mDisplayState) {
+        case SET_HIGH:
+            mDisplayState = SET_LOW;
+            break;
+        case SET_LOW:
+            mDisplayState = SHOW_TEMP;
+            mBusy = false;
+            break;
+        default:
+            SevenSegment.setState(SevenSegment.SET);
+            _delay_ms(1000);
+
+            mDisplayState = SET_HIGH;
+            break;
+    }
 }
 
 uint8_t segmentCount = 0;
@@ -120,9 +151,12 @@ void cDisplayController::run()
 			}
 		}
 		break;
+
 	case SET_HIGH:
+	    SevenSegment.setState(SevenSegment.HI);
 		break;
 	case SET_LOW:
+	    SevenSegment.setState(SevenSegment.LO);
 		break;
 	}
 

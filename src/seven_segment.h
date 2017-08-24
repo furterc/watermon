@@ -24,7 +24,7 @@ public:
 
 	typedef enum
 	{
-		OFF, NUMBER, HI, LO
+		OFF, NUMBER, HI, LO, SET
 	} mState;
 	mState state;
 

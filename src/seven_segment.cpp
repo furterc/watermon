@@ -32,6 +32,8 @@ const uint8_t segmentValues[] PROGMEM =
 		0b00000010, //i	(12)
 		0b00100011, //L (13)
 		0b00010111, //o (14)
+		0b01110011, //E (15)
+		0b00110011, //t (16)
 };
 
 cSevenSegment::cSevenSegment() {
@@ -69,7 +71,7 @@ void cSevenSegment::sendByte(uint8_t byte)
 
 void cSevenSegment::putDigit(uint8_t index)
 {
-	if(index > 14)
+	if(index > 16)
 		return;
 
 	sendByte(pgm_read_byte(&segmentValues[index]));
@@ -152,6 +154,12 @@ void cSevenSegment::setState(mState st)
 		mDigits[1] = 14;
 		mEnabled = 0x3;
 		break;
+	case SET:
+	    mDigits[0] = 5;
+	    mDigits[1] = 15;
+	    mDigits[2] = 16;
+	    mEnabled = 0x7;
+	    break;
 	default:
 		mEnabled = 0;
 
