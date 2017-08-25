@@ -10,6 +10,16 @@
 
 #include <stdint.h>
 
+typedef enum
+    {
+    SEGMENT_OFF,
+    SEGMENT_NUMBER,
+    SEGMENT_HI,
+    SEGMENT_LO,
+    SEGMENT_SET,
+    SEGMENT_ERR
+    } segmentState_t;
+
 class cSevenSegment
 {
 	void sendByte(uint8_t byte);
@@ -19,22 +29,15 @@ class cSevenSegment
 	void putDigit(uint8_t index);
 
 	uint8_t mEnabled;
+	segmentState_t state;
 
 public:
-
-	typedef enum
-	{
-		OFF, NUMBER, HI, LO, SET
-	} mState;
-	mState state;
-
 	cSevenSegment();
 	virtual ~cSevenSegment();
 
 	void run();
 	void setNumber(uint16_t number);
-	void setState(mState st);
-
+	void setState(segmentState_t st);
 };
 
 extern cSevenSegment SevenSegment;

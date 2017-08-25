@@ -18,6 +18,9 @@
 
 cBuzzer Buzzer = cBuzzer();
 cButton Button = cButton();
+cDisplayController DisplayController = cDisplayController();
+
+
 
 void watchdogReset()
 {
@@ -81,7 +84,6 @@ void btnCallback(bool state, uint8_t count)
 
 int main(void)
 {
-
 	sei();
 	printp("main()\n");
 

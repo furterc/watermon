@@ -10,17 +10,56 @@
 #include <stdlib.h>
 #include <avr/delay.h>
 
-#include "seven_segment.h"
+
 #include "temp.h"
 #include "terminal.h"
 #include "commands.h"
 
-#define SHOW_THRESHHOLD 3
-#define SHOW_COUNT		1
+#define SHOW_THRESHHOLD     3
+#define SHOW_COUNT		    1
+#define SHOW_COUNT_TIMEOUT  20
+#define TEMP_SET_LOW        10
+#define TEMP_SET_TOP        40
+#define TEMP_SET_STEP       5   //Must be able to divide into difference => (TOP-LOW)/n
+
+
+uint8_t setTemp = TEMP_SET_LOW;
 
 cTemp temp = cTemp();
 
-cDisplayController DisplayController;
+uint8_t inCount = 0;
+uint8_t outCount = 0;
+bool showText = false;
+
+uint8_t cDisplayController::showTextNumber(segmentState_t state, uint8_t number, uint8_t timeout)
+{
+    if(inCount++ > SHOW_THRESHHOLD)
+    {
+        inCount = 0;
+
+        if (outCount >= timeout)
+        {
+            outCount = 0;
+            showText = false;
+            mBusy = false;
+            return 1;
+        }
+
+        if(!showText)
+        {
+            SevenSegment.setState(state);
+            showText = true;
+        }
+        else
+        {
+            SevenSegment.setNumber(number);
+            showText = false;
+            outCount++;
+        }
+    }
+    return 0;
+}
+
 
 cDisplayController::cDisplayController()
 {
@@ -37,6 +76,8 @@ void cDisplayController::show_info()
 {
    if (mDisplayState == SHOW_TEMP)
        mDisplayState = SHOW_HIGH;
+
+   SevenSegment.setState(SEGMENT_HI);
 }
 
 bool cDisplayController::set_mode_busy()
@@ -44,7 +85,15 @@ bool cDisplayController::set_mode_busy()
     if (!mBusy)
         return false;
 
+    if (setTemp >= TEMP_SET_TOP)
+        setTemp = TEMP_SET_LOW;
+    else
+        setTemp += TEMP_SET_STEP;
 
+    SevenSegment.setNumber(setTemp);
+    inCount = 0;
+    outCount = 0;
+    showText = false;
 
     return true;
 }
@@ -54,20 +103,35 @@ void cDisplayController::enter_set_mode()
     mBusy = true;
     switch (mDisplayState) {
         case SET_HIGH:
+            inCount = 0;
+            outCount = 0;
+            showText = false;
+
+            if (setTemp != temp.get_highValue())
+                temp.set_highValue(setTemp);
+
             mDisplayState = SET_LOW;
             break;
         case SET_LOW:
+            inCount = 0;
+            outCount = 0;
+            showText = false;
+
+            if (setTemp != temp.get_lowValue())
+                temp.set_lowValue(setTemp);
+
             mDisplayState = SHOW_TEMP;
             mBusy = false;
             break;
         default:
-            SevenSegment.setState(SevenSegment.SET);
+            SevenSegment.setState(SEGMENT_SET);
             _delay_ms(1000);
 
             mDisplayState = SET_HIGH;
             break;
     }
 }
+
 
 uint8_t segmentCount = 0;
 bool tempState = false;
@@ -90,7 +154,7 @@ void cDisplayController::run()
 		else
 		{
 			sampleCount = 0;
-			SevenSegment.setState(SevenSegment.NUMBER);
+			SevenSegment.setState(SEGMENT_NUMBER);
 			samples = (samples >> 4);
 			SevenSegment.setNumber(samples);
 			samples = 0;
@@ -99,65 +163,20 @@ void cDisplayController::run()
 
 	}break;
 	case SHOW_HIGH:
-		if(inCount++ > SHOW_THRESHHOLD)
-		{
-			inCount = 0;
-
-			if (outCount >= SHOW_COUNT)
-			{
-				mDisplayState = SHOW_LOW;
-				outCount = 0;
-				showText = false;
-				return;
-			}
-
-
-			if(!showText)
-			{
-				SevenSegment.setState(SevenSegment.HI);
-				showText = true;
-			}
-			else
-			{
-				SevenSegment.setNumber(temp.get_highValue());
-				showText = false;
-				outCount++;
-			}
-		}
+		if (showTextNumber(SEGMENT_HI, temp.get_highValue(), SHOW_COUNT))
+		    mDisplayState = SHOW_LOW;
 		break;
 	case SHOW_LOW:
-		if(inCount++ > SHOW_THRESHHOLD)
-		{
-			inCount = 0;
-
-			if (outCount >= SHOW_COUNT)
-			{
-				mDisplayState = SHOW_TEMP;
-				outCount = 0;
-				showText = false;
-				return;
-			}
-
-			if(!showText)
-			{
-				SevenSegment.setState(SevenSegment.LO);
-				showText = true;
-			}
-			else
-			{
-				SevenSegment.setNumber(temp.get_lowValue());
-				showText = false;
-				outCount++;
-			}
-		}
-		break;
-
+	    if (showTextNumber(SEGMENT_LO, temp.get_lowValue(), SHOW_COUNT))
+	        mDisplayState = SHOW_TEMP;
+	    break;
 	case SET_HIGH:
-	    SevenSegment.setState(SevenSegment.HI);
-		break;
+	    if (showTextNumber(SEGMENT_HI, setTemp, SHOW_COUNT_TIMEOUT))
+	        mDisplayState = SHOW_TEMP;
+	    break;
 	case SET_LOW:
-	    SevenSegment.setState(SevenSegment.LO);
-		break;
+	    if (showTextNumber(SEGMENT_LO, setTemp, SHOW_COUNT_TIMEOUT))
+	        mDisplayState = SHOW_TEMP;
 	}
 
 }

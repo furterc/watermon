@@ -46,7 +46,7 @@ cSevenSegment::cSevenSegment() {
 
 	TIMSK1 = _BV(TOIE1);
 	TCCR1B = 0x01;
-	state = OFF;
+	state = SEGMENT_OFF;
 }
 
 void cSevenSegment::sendByte(uint8_t byte)
@@ -132,29 +132,29 @@ void cSevenSegment::setNumber(uint16_t number)
 		break;
 	}
 
-	state = NUMBER;
+	state = SEGMENT_NUMBER;
 }
 
-void cSevenSegment::setState(mState st)
+void cSevenSegment::setState(segmentState_t st)
 {
 	memset(mDigits, 0xFF, 3);
 	state = st;
 	switch (state)
 	{
-	case OFF:
+	case SEGMENT_OFF:
 		mEnabled = 0;
 		break;
-	case HI:
+	case SEGMENT_HI:
 		mDigits[0] = 11;
 		mDigits[1] = 12;
 		mEnabled = 0x3;
 		break;
-	case LO:
+	case SEGMENT_LO:
 		mDigits[0] = 13;
 		mDigits[1] = 14;
 		mEnabled = 0x3;
 		break;
-	case SET:
+	case SEGMENT_SET:
 	    mDigits[0] = 5;
 	    mDigits[1] = 15;
 	    mDigits[2] = 16;

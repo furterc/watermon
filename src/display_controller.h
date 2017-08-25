@@ -8,6 +8,8 @@
 #ifndef SRC_DISPLAY_CONTROLLER_H_
 #define SRC_DISPLAY_CONTROLLER_H_
 
+#include "seven_segment.h"
+
 class cDisplayController
 {
 	enum
@@ -20,7 +22,7 @@ class cDisplayController
 	}mDisplayState;
 
 	bool mBusy;
-
+	uint8_t showTextNumber(segmentState_t state, uint8_t number, uint8_t timeout);
 
 
 public:
@@ -34,6 +36,5 @@ public:
 	void run();
 };
 
-extern cDisplayController DisplayController;
 
 #endif /* SRC_DISPLAY_CONTROLLER_H_ */
