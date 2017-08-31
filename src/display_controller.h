@@ -12,28 +12,21 @@
 
 class cDisplayController
 {
-	enum
-	{
-		SHOW_TEMP,
-		SHOW_HIGH,
-		SHOW_LOW,
-		SET_HIGH,
-		SET_LOW
-	}mDisplayState;
-
 	bool mBusy;
-	uint8_t showTextNumber(segmentState_t state, uint8_t number, uint8_t timeout);
-
-
 public:
 	cDisplayController();
 	virtual ~cDisplayController();
 
-	void show_temp();
-	void show_info();
+	uint8_t showTextNumber(segmentState_t state, uint8_t number, uint8_t timeout);
+	void updateTextNumber(uint8_t number);;
+	void shownumber(uint8_t number);
+
+
+
 	bool set_mode_busy();
 	void enter_set_mode();
 	void run();
+
 };
 
 

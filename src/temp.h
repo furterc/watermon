@@ -14,6 +14,11 @@ class cTemp
 {
 	uint8_t mLowVal;
 	uint8_t mHighVal;
+	uint8_t mLastTemp;
+
+	uint16_t getVal();
+	double adc_getResistance();
+	uint16_t adc_getTemp();
 
 public:
     cTemp();
@@ -23,9 +28,10 @@ public:
     void set_highValue(uint8_t temp);
     uint8_t get_highValue();
 
-    uint16_t getVal();
-    double adc_getResistance();
-    uint16_t adc_getTemp();
+
+
+    void run();
+    uint8_t getLastTemp();
 
     virtual ~cTemp();
 };

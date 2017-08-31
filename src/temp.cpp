@@ -30,8 +30,11 @@
 
 cTemp::cTemp()
 {
+    //get stored values
 	mLowVal = eeprom_read_byte((uint8_t *)EEPROM_LO_VALUE);
 	mHighVal = eeprom_read_byte((uint8_t *)EEPROM_HI_VALUE);
+
+	mLastTemp = 0;
 }
 
 void cTemp::set_lowValue(uint8_t low)
@@ -96,14 +99,33 @@ double cTemp::adc_getResistance()
 	return res;
 }
 
-
-
 uint16_t cTemp::adc_getTemp()
 {
 	double lnRes = (log(adc_getResistance()));
 	double temp = 1/(A + (B*lnRes) + (C * lnRes * lnRes * lnRes));
 	double tempC = temp - 273;
 	return (uint16_t)tempC;
+}
+
+void cTemp::run()
+{
+    static uint8_t sampleCount = 0;
+    static uint32_t samples = 0;
+
+    if(sampleCount++ < 16)
+        samples += adc_getTemp();
+    else
+    {
+        sampleCount = 0;
+        samples = (samples >> 4);
+        mLastTemp = samples;
+        samples = 0;
+    }
+}
+
+uint8_t cTemp::getLastTemp()
+{
+    return mLastTemp;
 }
 
 cTemp::~cTemp()

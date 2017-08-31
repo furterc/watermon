@@ -13,14 +13,17 @@
 #include "buzzer.h"
 #include "button.h"
 #include "display_controller.h"
+#include "temp_controller.h"
 
 #define BUTTON_LONG_PRESS   10    //n*100mS
 
 cBuzzer Buzzer = cBuzzer();
 cButton Button = cButton();
+
+cTemp Temp = cTemp();
 cDisplayController DisplayController = cDisplayController();
 
-
+cTempController TempController = cTempController(&Temp, &DisplayController);
 
 void watchdogReset()
 {
@@ -63,7 +66,7 @@ void btnCallback(bool state, uint8_t count)
         if( count == BUTTON_LONG_PRESS )
         {
             printf("Long press\n");
-            DisplayController.enter_set_mode();
+            TempController.btnLongPress();
             longPress = true;
         }
     }
@@ -76,9 +79,8 @@ void btnCallback(bool state, uint8_t count)
         }
 
         printf("Short press\n");
+        TempController.btnShortPress();
 
-        if ( !DisplayController.set_mode_busy())
-            DisplayController.show_info();
     }
 }
 
@@ -89,21 +91,17 @@ int main(void)
 
 	Button.setCB(&btnCallback);
 
-	DisplayController.show_temp();
-
 	uint16_t segmentCount = 0;
 	while(1)
 	{
 		if (++segmentCount > 10)
 		{
-			DisplayController.run();
+		    TempController.run();
 		}
-
-
-		Terminal.run();
+		Temp.run();
 		Button.run();
+		Terminal.run();
 
 		_delay_ms(100);
-
 	}
 }
