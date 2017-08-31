@@ -21,7 +21,9 @@ cBuzzer Buzzer = cBuzzer();
 cButton Button = cButton();
 
 cTemp Temp = cTemp();
-cDisplayController DisplayController = cDisplayController();
+
+cSevenSegment SevenSegment = cSevenSegment();
+cDisplayController DisplayController = cDisplayController(&SevenSegment);
 
 cTempController TempController = cTempController(&Temp, &DisplayController);
 
@@ -29,8 +31,6 @@ void watchdogReset()
 {
 	__asm__ __volatile__ ( "wdr\n" );
 }
-
-
 
 void buzzer(uint8_t argc, char **argv)
 {
@@ -80,7 +80,6 @@ void btnCallback(bool state, uint8_t count)
 
         printf("Short press\n");
         TempController.btnShortPress();
-
     }
 }
 
@@ -104,4 +103,9 @@ int main(void)
 
 		_delay_ms(100);
 	}
+}
+
+ISR(TIMER1_OVF_vect)
+{
+    SevenSegment.run();
 }

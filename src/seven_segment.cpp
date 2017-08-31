@@ -13,8 +13,6 @@
 #include "terminal.h"
 #include "seven_segment.h"
 
-cSevenSegment SevenSegment;
-
 const uint8_t segmentValues[] PROGMEM =
 {
 		0b11100111,	//0
@@ -166,15 +164,8 @@ void cSevenSegment::setState(segmentState_t st)
 	}
 }
 
-
-
-
-
 cSevenSegment::~cSevenSegment() {
 	// TODO Auto-generated destructor stub
 }
 
-ISR(TIMER1_OVF_vect)
-{
-	SevenSegment.run();
-}
+

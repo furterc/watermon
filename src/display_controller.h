@@ -12,21 +12,14 @@
 
 class cDisplayController
 {
-	bool mBusy;
+    cSevenSegment *mSevenSegment;
 public:
-	cDisplayController();
-	virtual ~cDisplayController();
+	cDisplayController(cSevenSegment *sevenSegment);
 
 	uint8_t showTextNumber(segmentState_t state, uint8_t number, uint8_t timeout);
-	void updateTextNumber(uint8_t number);;
+	void updateNumber(uint8_t number);
+	void updateText(segmentState_t state);
 	void shownumber(uint8_t number);
-
-
-
-	bool set_mode_busy();
-	void enter_set_mode();
-	void run();
-
 };
 
 

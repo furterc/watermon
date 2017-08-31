@@ -35,7 +35,7 @@ uint8_t cTempController::setMode()
     else
         setTemp += TEMP_SET_STEP;
 
-    mDisplayController->updateTextNumber(setTemp);
+    mDisplayController->updateNumber(setTemp);
     return 1;
 }
 
@@ -50,9 +50,8 @@ cTempController::cTempController(cTemp *temp, cDisplayController *displayControl
 
 cTempController::~cTempController()
 {
-    // TODO Auto-generated destructor stub
-}
 
+}
 
 void cTempController::btnShortPress()
 {
@@ -80,7 +79,7 @@ void cTempController::btnLongPress()
             mBusy = false;
             break;
         default:
-            SevenSegment.setState(SEGMENT_SET);
+            mDisplayController->updateText(SEGMENT_SET);
             _delay_ms(1000);
 
             mTempControllerState = TC_SET_HIGH;
@@ -97,8 +96,6 @@ void cTempController::run()
         case TC_SHOW_TEMP:
         {
             mDisplayController->shownumber(mTemp->getLastTemp());
-            //TODO show temp
-
         }break;
         case TC_SHOW_HIGH:
             if (mDisplayController->showTextNumber(SEGMENT_HI, mTemp->get_highValue(), SHOW_COUNT))

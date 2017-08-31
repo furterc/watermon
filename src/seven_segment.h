@@ -40,6 +40,4 @@ public:
 	void setState(segmentState_t st);
 };
 
-extern cSevenSegment SevenSegment;
-
 #endif /* SRC_SEVEN_SEGMENT_H_ */
