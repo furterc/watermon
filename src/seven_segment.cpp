@@ -13,6 +13,8 @@
 #include "terminal.h"
 #include "seven_segment.h"
 
+#define SEVEN_SEGMENT_CHARACTERS    17
+
 const uint8_t segmentValues[] PROGMEM =
 {
 		0b11100111,	//0
@@ -32,6 +34,7 @@ const uint8_t segmentValues[] PROGMEM =
 		0b00010111, //o (14)
 		0b01110011, //E (15)
 		0b00110011, //t (16)
+		0b00010010, //r (17)
 };
 
 cSevenSegment::cSevenSegment() {
@@ -69,7 +72,7 @@ void cSevenSegment::sendByte(uint8_t byte)
 
 void cSevenSegment::putDigit(uint8_t index)
 {
-	if(index > 16)
+	if(index > SEVEN_SEGMENT_CHARACTERS)
 		return;
 
 	sendByte(pgm_read_byte(&segmentValues[index]));

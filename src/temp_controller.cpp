@@ -16,7 +16,6 @@
 #define TEMP_SET_STEP       5   //Must be able to divide into difference => (TOP-LOW)/n
 
 
-uint8_t setTemp = TEMP_SET_LOW;
 
 
 void cTempController::showTemp()
@@ -30,22 +29,34 @@ uint8_t cTempController::setMode()
     if (!mBusy)
         return 0;
 
-    if (setTemp >= TEMP_SET_TOP)
-        setTemp = TEMP_SET_LOW;
+    if (mSetTemp >= TEMP_SET_TOP)
+        mSetTemp = TEMP_SET_LOW;
     else
-        setTemp += TEMP_SET_STEP;
+        mSetTemp += TEMP_SET_STEP;
 
-    mDisplayController->updateNumber(setTemp);
+    mDisplayController->updateNumber(mSetTemp);
     return 1;
+}
+
+bool cTempController::checkWater()
+{
+    if (WATER_DETECT_PORT &= _BV(WATER_DETECT_PIN))
+        return true;
+
+    return false;
 }
 
 cTempController::cTempController(cTemp *temp, cDisplayController *displayController)
 {
     mTemp = temp;
-    mDisplayController = displayController;;
+    mDisplayController = displayController;
     mCurrTemp = 0;
+    mSetTemp = TEMP_SET_LOW;
     mTempControllerState = TC_SHOW_TEMP;
     mBusy = false;
+
+    //setup the water detect pin
+    WATER_DETECT_PORT |= _BV(WATER_DETECT_PIN);
 }
 
 cTempController::~cTempController()
@@ -66,14 +77,14 @@ void cTempController::btnLongPress()
     mBusy = true;
     switch (mTempControllerState) {
         case TC_SET_HIGH:
-            if (setTemp != mTemp->get_highValue())
-                mTemp->set_highValue(setTemp);
+            if (mSetTemp != mTemp->get_highValue())
+                mTemp->set_highValue(mSetTemp);
 
             mTempControllerState = TC_SET_LOW;
             break;
         case TC_SET_LOW:
-            if (setTemp != mTemp->get_lowValue())
-                mTemp->set_lowValue(setTemp);
+            if (mSetTemp != mTemp->get_lowValue())
+                mTemp->set_lowValue(mSetTemp);
 
             mTempControllerState = TC_SHOW_TEMP;
             mBusy = false;
@@ -106,11 +117,11 @@ void cTempController::run()
                 mTempControllerState = TC_SHOW_TEMP;
             break;
         case TC_SET_HIGH:
-            if (mDisplayController->showTextNumber(SEGMENT_HI, setTemp, SHOW_COUNT_TIMEOUT))
+            if (mDisplayController->showTextNumber(SEGMENT_HI, mSetTemp, SHOW_COUNT_TIMEOUT))
                 mTempControllerState = TC_SHOW_TEMP;
             break;
         case TC_SET_LOW:
-            if (mDisplayController->showTextNumber(SEGMENT_LO, setTemp, SHOW_COUNT_TIMEOUT))
+            if (mDisplayController->showTextNumber(SEGMENT_LO, mSetTemp, SHOW_COUNT_TIMEOUT))
                 mTempControllerState = TC_SHOW_TEMP;
         }
 

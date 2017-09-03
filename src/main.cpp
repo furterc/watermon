@@ -35,7 +35,17 @@ void watchdogReset()
 void buzzer(uint8_t argc, char **argv)
 {
 	uint8_t duty = atoi(argv[1]);
-	printp("duty: %d\n", duty);
+
+	printp("Buzzer ");
+	if (duty == 1)
+	{
+	    Buzzer.enable(true);
+	    printp("on\n");
+	    return;
+	}
+	    Buzzer.enable(false);
+	    printp("off\n");
+
 //	pwmBuzzer.setDutyC(duty);
 }
 extern const dbg_entry buzzerEntry =
@@ -87,6 +97,7 @@ int main(void)
 {
 	sei();
 	printp("main()\n");
+	Buzzer.init();
 
 	Button.setCB(&btnCallback);
 
@@ -97,10 +108,12 @@ int main(void)
 		{
 		    TempController.run();
 		}
+		Buzzer.run();
 		Temp.run();
 		Button.run();
 		Terminal.run();
 
+//		printf("w: %d\n", TempController.checkWater());
 		_delay_ms(100);
 	}
 }
