@@ -128,6 +128,17 @@ uint8_t cTemp::getLastTemp()
     return mLastTemp;
 }
 
+bool cTemp::checkHiLo()
+{
+    if (mLastTemp > mHighVal)
+        return false;
+
+    if (mLastTemp < mLowVal)
+        return false;
+
+    return true;
+}
+
 cTemp::~cTemp()
 {
 

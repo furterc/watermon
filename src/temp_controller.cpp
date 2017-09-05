@@ -46,12 +46,15 @@ bool cTempController::checkWater()
     return false;
 }
 
-cTempController::cTempController(cTemp *temp, cDisplayController *displayController)
+cTempController::cTempController(cTemp *temp, cDisplayController *displayController, cBuzzer * buzzer)
 {
     mTemp = temp;
     mDisplayController = displayController;
+    mBuzzer = buzzer;
+
     mCurrTemp = 0;
     mSetTemp = TEMP_SET_LOW;
+
     mTempControllerState = TC_SHOW_TEMP;
     mBusy = false;
 
@@ -76,25 +79,27 @@ void cTempController::btnLongPress()
 {
     mBusy = true;
     switch (mTempControllerState) {
-        case TC_SET_HIGH:
-            if (mSetTemp != mTemp->get_highValue())
-                mTemp->set_highValue(mSetTemp);
+    case TC_SET_HIGH:
+        if (mSetTemp != mTemp->get_highValue())
+            mTemp->set_highValue(mSetTemp);
 
-            mTempControllerState = TC_SET_LOW;
-            break;
-        case TC_SET_LOW:
-            if (mSetTemp != mTemp->get_lowValue())
-                mTemp->set_lowValue(mSetTemp);
+        mSetTemp = mTemp->get_lowValue();
+        mTempControllerState = TC_SET_LOW;
+        break;
+    case TC_SET_LOW:
+        if (mSetTemp != mTemp->get_lowValue())
+            mTemp->set_lowValue(mSetTemp);
 
-            mTempControllerState = TC_SHOW_TEMP;
-            mBusy = false;
-            break;
-        default:
-            mDisplayController->updateText(SEGMENT_SET);
-            _delay_ms(1000);
+        mTempControllerState = TC_SHOW_TEMP;
+        mBusy = false;
+        break;
+    default:
+        mDisplayController->updateText(SEGMENT_SET);
+        _delay_ms(1000);
 
-            mTempControllerState = TC_SET_HIGH;
-            break;
+        mSetTemp = mTemp->get_highValue();
+        mTempControllerState = TC_SET_HIGH;
+        break;
     }
 }
 
@@ -102,28 +107,56 @@ void cTempController::run()
 {
     mCurrTemp = mTemp->getLastTemp();
 
-    switch (mTempControllerState)
+    static uint8_t alarmState = 0;
+
+    if (alarmState == 1)
+    {
+        if (mTemp->checkHiLo())
         {
-        case TC_SHOW_TEMP:
-        {
-            mDisplayController->shownumber(mTemp->getLastTemp());
-        }break;
-        case TC_SHOW_HIGH:
-            if (mDisplayController->showTextNumber(SEGMENT_HI, mTemp->get_highValue(), SHOW_COUNT))
-                mTempControllerState = TC_SHOW_LOW;
-            break;
-        case TC_SHOW_LOW:
-            if (mDisplayController->showTextNumber(SEGMENT_LO, mTemp->get_lowValue(), SHOW_COUNT))
-                mTempControllerState = TC_SHOW_TEMP;
-            break;
-        case TC_SET_HIGH:
-            if (mDisplayController->showTextNumber(SEGMENT_HI, mSetTemp, SHOW_COUNT_TIMEOUT))
-                mTempControllerState = TC_SHOW_TEMP;
-            break;
-        case TC_SET_LOW:
-            if (mDisplayController->showTextNumber(SEGMENT_LO, mSetTemp, SHOW_COUNT_TIMEOUT))
-                mTempControllerState = TC_SHOW_TEMP;
+            alarmState = 0;
+            mBuzzer->enable(0);
+            mTempControllerState = TC_SHOW_TEMP;
         }
+    }
+
+
+    switch (mTempControllerState)
+    {
+    case TC_SHOW_TEMP:
+    {
+        mDisplayController->shownumber(mTemp->getLastTemp());
+
+        if (!mTemp->checkHiLo())
+        {
+            alarmState = 1;
+            mBuzzer->enable(1);
+            mTempControllerState = TC_ERROR_TEMP;
+        }
+    }break;
+    case TC_SHOW_HIGH:
+        if (mDisplayController->showTextNumber(SEGMENT_HI, mTemp->get_highValue(), SHOW_COUNT))
+            mTempControllerState = TC_SHOW_LOW;
+        break;
+    case TC_SHOW_LOW:
+        if (mDisplayController->showTextNumber(SEGMENT_LO, mTemp->get_lowValue(), SHOW_COUNT))
+            mTempControllerState = TC_SHOW_TEMP;
+        break;
+    case TC_SET_HIGH:
+        alarmState = 0;
+        mBuzzer->enable(0);
+        if (mDisplayController->showTextNumber(SEGMENT_HI, mSetTemp, SHOW_COUNT_TIMEOUT))
+            mTempControllerState = TC_SHOW_TEMP;
+        break;
+    case TC_SET_LOW:
+        if (mDisplayController->showTextNumber(SEGMENT_LO, mSetTemp, SHOW_COUNT_TIMEOUT))
+            mTempControllerState = TC_SHOW_TEMP;
+        break;
+    case TC_ERROR_TEMP:
+        mDisplayController->showTextNumber(SEGMENT_ERR, mCurrTemp, SHOW_COUNT_TIMEOUT);
+        break;
+    case TC_ERROR_DETECT:
+        break;
+    }
 
 }
 

@@ -27,11 +27,13 @@ void cBuzzer::reset()
 
 void cBuzzer::run()
 {
-    if (!mEnabled)
-        return;
-
-
     static uint8_t count = 0;
+
+    if (!mEnabled)
+    {
+        count = 0;
+        return;
+    }
 
     if (count++ < BUZZER_TOGGLE_TIME)
         return;

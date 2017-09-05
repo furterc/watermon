@@ -161,6 +161,12 @@ void cSevenSegment::setState(segmentState_t st)
 	    mDigits[2] = 16;
 	    mEnabled = 0x7;
 	    break;
+	case SEGMENT_ERR:
+	    mDigits[0] = 15;
+	    mDigits[1] = 17;
+	    mDigits[2] = 17;
+	    mEnabled = 0x7;
+	    break;
 	default:
 		mEnabled = 0;
 

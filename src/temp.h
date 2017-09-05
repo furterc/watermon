@@ -32,6 +32,7 @@ public:
 
     void run();
     uint8_t getLastTemp();
+    bool checkHiLo();
 
     virtual ~cTemp();
 };

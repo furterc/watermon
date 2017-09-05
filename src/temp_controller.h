@@ -10,6 +10,7 @@
 
 #include <avr/io.h>
 #include "temp.h"
+#include "buzzer.h"
 #include "display_controller.h"
 
 #define WATER_DETECT_PORT   PORTD
@@ -31,17 +32,16 @@ class cTempController
 
     cTemp *mTemp;
     cDisplayController *mDisplayController;
+    cBuzzer *mBuzzer;
+
     uint8_t mCurrTemp;
     uint8_t mSetTemp;
-
     bool mBusy;
 
     void showTemp();
     uint8_t setMode();
-
-
 public:
-    cTempController(cTemp *temp, cDisplayController *displayController);
+    cTempController(cTemp *temp, cDisplayController *displayController, cBuzzer *buzzer);
     virtual ~cTempController();
 
     void btnShortPress();

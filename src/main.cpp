@@ -25,7 +25,7 @@ cTemp Temp = cTemp();
 cSevenSegment SevenSegment = cSevenSegment();
 cDisplayController DisplayController = cDisplayController(&SevenSegment);
 
-cTempController TempController = cTempController(&Temp, &DisplayController);
+cTempController TempController = cTempController(&Temp, &DisplayController, &Buzzer);
 
 void watchdogReset()
 {
