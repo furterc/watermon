@@ -6,7 +6,6 @@
 #include <stdbool.h>
 
 #include "terminal.h"
-#include "output.h"
 #include "temp.h"
 #include "buzzer.h"
 #include "button.h"
