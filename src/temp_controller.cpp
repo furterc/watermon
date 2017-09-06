@@ -16,8 +16,6 @@
 #define TEMP_SET_STEP       5   //Must be able to divide into difference => (TOP-LOW)/n
 
 
-
-
 void cTempController::showTemp()
 {
     if (mTempControllerState == TC_SHOW_TEMP)
@@ -114,7 +112,7 @@ void cTempController::run()
         if (mTemp->checkHiLo())
         {
             alarmState = 0;
-            mBuzzer->enable(0);
+            mBuzzer->reset();
             mTempControllerState = TC_SHOW_TEMP;
         }
     }
@@ -124,36 +122,44 @@ void cTempController::run()
     {
     case TC_SHOW_TEMP:
     {
-        mDisplayController->shownumber(mTemp->getLastTemp());
+        mDisplayController->updateNumber(mTemp->getLastTemp());
 
         if (!mTemp->checkHiLo())
         {
             alarmState = 1;
-            mBuzzer->enable(1);
+            //            mBuzzer->enable(1);
             mTempControllerState = TC_ERROR_TEMP;
         }
     }break;
     case TC_SHOW_HIGH:
-        if (mDisplayController->showTextNumber(SEGMENT_HI, mTemp->get_highValue(), SHOW_COUNT))
+        if (!mDisplayController->showTextNumber(SEGMENT_HI, mTemp->get_highValue(), SHOW_COUNT))
             mTempControllerState = TC_SHOW_LOW;
         break;
     case TC_SHOW_LOW:
-        if (mDisplayController->showTextNumber(SEGMENT_LO, mTemp->get_lowValue(), SHOW_COUNT))
+        if (!mDisplayController->showTextNumber(SEGMENT_LO, mTemp->get_lowValue(), SHOW_COUNT))
             mTempControllerState = TC_SHOW_TEMP;
         break;
     case TC_SET_HIGH:
         alarmState = 0;
-        mBuzzer->enable(0);
-        if (mDisplayController->showTextNumber(SEGMENT_HI, mSetTemp, SHOW_COUNT_TIMEOUT))
+        mBuzzer->reset();
+        if (!mDisplayController->showTextNumber(SEGMENT_HI, mSetTemp, SHOW_COUNT_TIMEOUT))
             mTempControllerState = TC_SHOW_TEMP;
         break;
     case TC_SET_LOW:
-        if (mDisplayController->showTextNumber(SEGMENT_LO, mSetTemp, SHOW_COUNT_TIMEOUT))
+        if (!mDisplayController->showTextNumber(SEGMENT_LO, mSetTemp, SHOW_COUNT_TIMEOUT))
             mTempControllerState = TC_SHOW_TEMP;
         break;
     case TC_ERROR_TEMP:
-        mDisplayController->showTextNumber(SEGMENT_ERR, mCurrTemp, SHOW_COUNT_TIMEOUT);
+    {
+        uint8_t buzzState = mDisplayController->showTextNumber(SEGMENT_ERR, mCurrTemp, SHOW_COUNT_TIMEOUT);
+
+        if (buzzState == 2)
+            mBuzzer->set();
+        else if (buzzState == 3)
+            mBuzzer->reset();
         break;
+
+    }
     case TC_ERROR_DETECT:
         break;
     }

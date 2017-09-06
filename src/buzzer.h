@@ -14,15 +14,13 @@ class cBuzzer {
     bool mState;
     bool mEnabled;
 
-    void set();
-    void reset();
 public:
 	cBuzzer();
 	virtual ~cBuzzer();
 
     void init();
-    void enable(bool enabled);
-    void run();
+    void set();
+    void reset();
 };
 
 #endif /* SRC_BUZZER_H_ */

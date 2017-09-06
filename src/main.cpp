@@ -5,9 +5,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 
-
 #include "terminal.h"
-#include "commands.h"
 #include "output.h"
 #include "temp.h"
 #include "buzzer.h"
@@ -32,24 +30,16 @@ void watchdogReset()
 	__asm__ __volatile__ ( "wdr\n" );
 }
 
+#ifdef _DEBUG
+#include "commands.h"
+
 void buzzer(uint8_t argc, char **argv)
 {
 	uint8_t duty = atoi(argv[1]);
-
-	printp("Buzzer ");
-	if (duty == 1)
-	{
-	    Buzzer.enable(true);
-	    printp("on\n");
-	    return;
-	}
-	    Buzzer.enable(false);
-	    printp("off\n");
-
-//	pwmBuzzer.setDutyC(duty);
 }
 extern const dbg_entry buzzerEntry =
 { buzzer, "b" };
+
 
 void segmentNumber(uint8_t argc, char **argv)
 {
@@ -64,6 +54,8 @@ void segmentNumber(uint8_t argc, char **argv)
 extern const dbg_entry numberEntry =
 { segmentNumber, "n" };
 
+#endif
+
 void btnCallback(bool state, uint8_t count)
 {
     if(count > BUTTON_LONG_PRESS)
@@ -75,7 +67,7 @@ void btnCallback(bool state, uint8_t count)
     {
         if( count == BUTTON_LONG_PRESS )
         {
-            printf("Long press\n");
+            dbg_printp("Long press\n");
             TempController.btnLongPress();
             longPress = true;
         }
@@ -88,7 +80,7 @@ void btnCallback(bool state, uint8_t count)
             return;
         }
 
-        printf("Short press\n");
+        dbg_printp("Short press\n");
         TempController.btnShortPress();
     }
 }
@@ -96,7 +88,7 @@ void btnCallback(bool state, uint8_t count)
 int main(void)
 {
 	sei();
-	printp("main()\n");
+	dbg_printp("main()\n");
 	Buzzer.init();
 
 	Button.setCB(&btnCallback);
@@ -108,10 +100,11 @@ int main(void)
 		{
 		    TempController.run();
 		}
-		Buzzer.run();
 		Temp.run();
 		Button.run();
+#ifdef _DEBUG
 		Terminal.run();
+#endif
 
 //		printf("w: %d\n", TempController.checkWater());
 		_delay_ms(100);

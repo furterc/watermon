@@ -1,5 +1,6 @@
 #include "terminal.h"
 
+#ifdef _DEBUG
 //extern const dbg_entry testEntry;
 extern const dbg_entry buzzerEntry;
 extern const dbg_entry numberEntry;
@@ -17,3 +18,5 @@ const dbg_entry* dbg_entries[] =
 //		&hiEntry,
 		0
 };
+
+#endif

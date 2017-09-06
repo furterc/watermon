@@ -10,7 +10,6 @@
 #include <avr/interrupt.h>
 #include <string.h>
 
-#include "terminal.h"
 #include "seven_segment.h"
 
 #define SEVEN_SEGMENT_CHARACTERS    17

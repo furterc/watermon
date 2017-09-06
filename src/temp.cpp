@@ -7,7 +7,6 @@
 
 
 #include <avr/io.h>
-#include <stdio.h>
 #include <stdint-gcc.h>
 #include <math.h>
 #include <avr/eeprom.h>

@@ -1,3 +1,5 @@
+
+#ifdef _DEBUG
 #include <stdio.h>
 #include <avr/io.h>
 
@@ -22,3 +24,5 @@ void mystdio_init()
 {
 	stdout = &mystdout;
 }
+
+#endif
