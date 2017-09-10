@@ -29,7 +29,6 @@ void watchdogReset()
 	__asm__ __volatile__ ( "wdr\n" );
 }
 
-#ifdef _DEBUG
 #include "commands.h"
 
 void buzzer(uint8_t argc, char **argv)
@@ -46,14 +45,13 @@ void segmentNumber(uint8_t argc, char **argv)
 		return;
 
 	uint16_t number = atoi(argv[1]);
-	printp("show number: %d\n", number);
+	printf("show number: %d\n", number);
 
 //	SevenSegment.setNumber(number);
 }
 extern const dbg_entry numberEntry =
 { segmentNumber, "n" };
 
-#endif
 
 void btnCallback(bool state, uint8_t count)
 {
@@ -66,7 +64,7 @@ void btnCallback(bool state, uint8_t count)
     {
         if( count == BUTTON_LONG_PRESS )
         {
-            dbg_printp("Long press\n");
+            printf("Long press\n");
             TempController.btnLongPress();
             longPress = true;
         }
@@ -79,7 +77,7 @@ void btnCallback(bool state, uint8_t count)
             return;
         }
 
-        dbg_printp("Short press\n");
+        printf("Short press\n");
         TempController.btnShortPress();
     }
 }
@@ -87,7 +85,7 @@ void btnCallback(bool state, uint8_t count)
 int main(void)
 {
 	sei();
-	dbg_printp("main()\n");
+	printf("main()\n");
 	Buzzer.init();
 
 	Button.setCB(&btnCallback);
@@ -101,9 +99,7 @@ int main(void)
 		}
 		Temp.run();
 		Button.run();
-#ifdef _DEBUG
 		Terminal.run();
-#endif
 
 //		printf("w: %d\n", TempController.checkWater());
 		_delay_ms(100);

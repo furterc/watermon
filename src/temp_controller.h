@@ -14,8 +14,9 @@
 #include "display_controller.h"
 
 #define WATER_DETECT_PORT   PORTD
+#define WATER_DETECT_PIN    PIND
 #define WATER_DETECT_DDR    DDRD
-#define WATER_DETECT_PIN    PD2
+#define WATER_DETECT_PIN_NUM    PD2
 
 class cTempController
 {
@@ -38,6 +39,7 @@ class cTempController
     uint8_t mSetTemp;
     bool mBusy;
 
+    void buzzerOnOff(uint8_t delayMultiplier);
     void showTemp();
     uint8_t setMode();
 public:

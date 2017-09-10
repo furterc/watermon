@@ -31,7 +31,12 @@ cTemp::cTemp()
 {
     //get stored values
 	mLowVal = eeprom_read_byte((uint8_t *)EEPROM_LO_VALUE);
+	if (mLowVal == 255)
+	    mLowVal = 10;
+
 	mHighVal = eeprom_read_byte((uint8_t *)EEPROM_HI_VALUE);
+	if (mHighVal == 255)
+	    mHighVal = 40;
 
 	mLastTemp = 0;
 }

@@ -1,13 +1,11 @@
 #ifndef TERMINAL_H_
 #define TERMINAL_H_
 
-#ifndef _DEBUG
 
 #include <stdio.h>
+#include <avr/pgmspace.h>
 
-#define dbg_printp(_x, ...)
-#else
-#define dbg_printp(_x, ...) printf_P(PSTR(_x), ##__VA_ARGS__);
+#define printp(_x, ...) printf_P(PSTR(_x), ##__VA_ARGS__);
 
 typedef void (*dbg_func)(uint8_t argc, char **argv);
 
@@ -43,7 +41,5 @@ public:
 extern const dbg_entry helpEntry;
 extern const dbg_entry* dbg_entries[];
 extern cTerminal Terminal;
-
-#endif
 
 #endif /* TERMINAL_H_ */

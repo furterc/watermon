@@ -1,6 +1,5 @@
 
 #include "terminal.h"
-#ifdef _DEBUG
 
 #include <stdio.h>
 #include <string.h>
@@ -22,7 +21,7 @@ cTerminal::cTerminal()
 	UCSR0C = _BV(UCSZ00) | _BV(UCSZ01);
 	UBRR0L = (uint8_t)( (F_CPU + 115200 * 4L) / (115200 * 8L) - 1 );
 
-	dbg_printp("Terminal started\n");
+	printf("Terminal started\n");
 }
 
 void  cTerminal::enableInput()
@@ -106,7 +105,7 @@ void cTerminal::handleCommand()
 		currEntry = dbg_entries[idx++];
 	}
 
-	dbg_printp("unknown command\n");
+	printp("unknown command\n");
 }
 
 void cTerminal::handle(char ch)
@@ -128,7 +127,7 @@ void help(uint8_t argc, char **argv)
 	const dbg_entry *currEntry = dbg_entries[idx++];
 	while(currEntry)
 	{
-		dbg_printp(" - %s\n", currEntry->command);
+		printp(" - %s\n", currEntry->command);
 
 		currEntry = dbg_entries[idx++];
 	}
@@ -148,5 +147,3 @@ ISR(USART_RX_vect)
 const dbg_entry helpEntry = {help, "h"};
 
 cTerminal Terminal;
-
-#endif
