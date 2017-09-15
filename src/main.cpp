@@ -84,13 +84,15 @@ void btnCallback(bool state, uint8_t count)
 
 int main(void)
 {
-	sei();
 	printf("main()\n");
 	Buzzer.init();
 
 	Button.setCB(&btnCallback);
 
+	sei();
+
 	uint16_t segmentCount = 0;
+
 	while(1)
 	{
 		if (++segmentCount > 10)
@@ -101,7 +103,6 @@ int main(void)
 		Button.run();
 		Terminal.run();
 
-//		printf("w: %d\n", TempController.checkWater());
 		_delay_ms(100);
 	}
 }

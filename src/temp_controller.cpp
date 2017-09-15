@@ -123,32 +123,57 @@ void cTempController::btnLongPress()
 
 void cTempController::run()
 {
-    if (checkWater())
-    {
-//        mTempControllerState = TC_SHOW_TEMP;
-        printf("water\n");
-    }
-    else
-    {
-//        mTempControllerState = TC_ERROR_DETECT;
-        printf("!water\n");
-    }
-
-
-    mCurrTemp = mTemp->getLastTemp();
-
     static uint8_t alarmState = 0;
 
-    if (alarmState == 1)
+    if (!checkWater())
+        alarmState |= 0x02;
+
+    if (alarmState)
     {
-        if (mTemp->checkHiLo())
+        uint8_t buzzState = 0;
+
+        if ((alarmState & 0x02) == 0x02)
         {
-            alarmState = 0;
+            if (checkWater())
+                alarmState &= ~0x02;
+
+            buzzState = mDisplayController->showTextText(SEGMENT_ERR, SEGMENT_LVL, SHOW_COUNT_TIMEOUT);
+        }
+        else if ((alarmState & 0x01) == 0x01)
+        {
+            if (mTemp->checkHiLo())
+                alarmState &= ~0x01;
+
+            buzzState = mDisplayController->showTextNumber(SEGMENT_ERR, mCurrTemp, SHOW_COUNT_TIMEOUT);
+        }
+
+        /* Set mode active */
+        if (mTempControllerState == TC_SET_HIGH || mTempControllerState == TC_SET_LOW)
+        {
             mBuzzer->reset();
-            mTempControllerState = TC_SHOW_TEMP;
+        }
+        else
+        {
+            /* Toggle Buzzer */
+            if (buzzState == 2)
+                mBuzzer->set();
+            else if (buzzState == 3)
+                mBuzzer->reset();
+
+            /* Disable alarm mode */
+            if(!alarmState)
+            {
+                mBuzzer->reset();
+                mTempControllerState = TC_SHOW_TEMP;
+            }
+
+            if (mTempControllerState != TC_SET_HIGH || mTempControllerState != TC_SET_LOW)
+                return;
+
         }
     }
 
+    mCurrTemp = mTemp->getLastTemp();
 
     switch (mTempControllerState)
     {
@@ -157,11 +182,8 @@ void cTempController::run()
         mDisplayController->updateNumber(mTemp->getLastTemp());
 
         if (!mTemp->checkHiLo())
-        {
-            alarmState = 1;
-            //            mBuzzer->enable(1);
-            mTempControllerState = TC_ERROR_TEMP;
-        }
+            alarmState |= 0x01;
+
     }break;
     case TC_SHOW_HIGH:
         if (!mDisplayController->showTextNumber(SEGMENT_HI, mTemp->get_highValue(), SHOW_COUNT))
@@ -180,27 +202,7 @@ void cTempController::run()
     case TC_SET_LOW:
         if (!mDisplayController->showTextNumber(SEGMENT_LO, mSetTemp, SHOW_COUNT_TIMEOUT))
             mTempControllerState = TC_SHOW_TEMP;
-        break;
-    case TC_ERROR_TEMP:
-    {
-//        uint8_t buzzState = mDisplayController->showTextNumber(SEGMENT_ERR, mCurrTemp, SHOW_COUNT_TIMEOUT);
-//
-//        if (buzzState == 2)
-//            mBuzzer->set();
-//        else if (buzzState == 3)
-//            mBuzzer->reset();
-    }break;
-    case TC_ERROR_DETECT:
-    {
-        uint8_t buzzS = mDisplayController->showTextNumber(SEGMENT_ERR, 1, SHOW_COUNT_TIMEOUT);
-
-        if (buzzS == 2)
-            mBuzzer->set();
-        else if (buzzS == 3)
-            mBuzzer->reset();
-    }break;
     }
-
 }
 
 

@@ -12,7 +12,7 @@
 
 #include "seven_segment.h"
 
-#define SEVEN_SEGMENT_CHARACTERS    17
+#define SEVEN_SEGMENT_CHARACTERS    18
 
 const uint8_t segmentValues[] PROGMEM =
 {
@@ -34,6 +34,7 @@ const uint8_t segmentValues[] PROGMEM =
 		0b01110011, //E (15)
 		0b00110011, //t (16)
 		0b00010010, //r (17)
+		0b10100111  //V (18)
 };
 
 cSevenSegment::cSevenSegment() {
@@ -164,6 +165,12 @@ void cSevenSegment::setState(segmentState_t st)
 	    mDigits[0] = 15;
 	    mDigits[1] = 17;
 	    mDigits[2] = 17;
+	    mEnabled = 0x7;
+	    break;
+	case SEGMENT_LVL:
+	    mDigits[0] = 13;
+	    mDigits[1] = 18;
+	    mDigits[2] = 13;
 	    mEnabled = 0x7;
 	    break;
 	default:

@@ -17,7 +17,8 @@ typedef enum
     SEGMENT_HI,
     SEGMENT_LO,
     SEGMENT_SET,
-    SEGMENT_ERR
+    SEGMENT_ERR,
+    SEGMENT_LVL
     } segmentState_t;
 
 class cSevenSegment

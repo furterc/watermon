@@ -26,9 +26,7 @@ class cTempController
         TC_SHOW_HIGH,
         TC_SHOW_LOW,
         TC_SET_HIGH,
-        TC_SET_LOW,
-        TC_ERROR_TEMP,
-        TC_ERROR_DETECT
+        TC_SET_LOW
     }mTempControllerState;
 
     cTemp *mTemp;
