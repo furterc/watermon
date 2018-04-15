@@ -13,8 +13,12 @@ cTerminal::cTerminal()
 {
 	mHead = 0;
 	mTail = 0;
-
 	mystdio_init();
+}
+
+void cTerminal::init()
+{
+
 
 	UCSR0A = _BV(U2X0); //Double speed mode USART0
 	UCSR0B = _BV(RXEN0) | _BV(TXEN0) | _BV(RXCIE0);

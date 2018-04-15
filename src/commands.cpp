@@ -1,19 +1,19 @@
 #include "terminal.h"
 
-//extern const dbg_entry testEntry;
-extern const dbg_entry buzzerEntry;
+extern const dbg_entry checkEntry;
+extern const dbg_entry sendEntry;
 extern const dbg_entry numberEntry;
-//extern const dbg_entry loEntry;
+extern const dbg_entry slaveHostEntry;
 //extern const dbg_entry hiEntry;
 
 
 const dbg_entry* dbg_entries[] =
 {
 		&helpEntry,
-//		&testEntry,
-		&buzzerEntry,
+		&checkEntry,
+		&sendEntry,
 		&numberEntry,
-//		&loEntry,
+		&slaveHostEntry,
 //		&hiEntry,
 		0
 };

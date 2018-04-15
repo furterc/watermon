@@ -34,6 +34,7 @@ public:
 	cTerminal();
 	virtual ~cTerminal();
 
+	void init();
 	void run();
 	void handle(char ch);
 };
